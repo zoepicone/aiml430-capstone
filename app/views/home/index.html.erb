@@ -1,0 +1,285 @@
+<h1 class="text-3xl font-bold text-center">
+  GANs for Image Generation
+</h1>
+<p class="text-center mt-4">
+  This is a website built to explain the concept of Generative Adversarial Networks, or GANs, and their applications in
+  image generation.
+</p>
+<h3 class="text-xl font-bold text-center mt-8">
+  But first, a demonstration of the power of GANs!
+</h3>
+<p class="text-left mt-4">
+  Here is an example of 2022's
+  <a href="https://www.cvlibs.net/publications/Sauer2022SIGGRAPH.pdf" class="text-blue-500 hover:underline">StyleGAN-XL</a>,
+  a text to image GAN that can generate images from text descriptions. This
+  embed allows you to choose from a selection from a variety of class labels, based on the ImageNet128 dataset it is
+  trained on, and generate resulting images from them. The images are generated in real-time, and are not
+  pre-rendered—it can take up to a minute for the image to be generated.
+</p>
+<div class="h-96 bg-gray-200 dark:bg-gray-800 rounded-lg mt-8">
+  <img hidden src="" alt="" class="h-full w-full object-contain py-4 rounded-lg" id="generated-image">
+</div>
+<!--  dropdown-->
+<div class="flex py-8 justify-center items-end" data-controller="stylegan">
+  <div class="max-w-sm px-4">
+    <label for="class-label" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose a class
+      label:</label>
+    <select name="class-label" id="class-label" data-stylegan-target="classlabel" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <option selected value="1">goldfish, Carassius auratus</option>
+      <option value="48">Komodo dragon, Komodo lizard, dragon lizard, giant lizard, Varanus komodoensis</option>
+      <option value="97">drake</option>
+      <option value="267">standard poodle</option>
+      <option value="346">water buffalo, water ox, Asiatic buffalo, Bubalus bubalis</option>
+      <option value="482">cassette player</option>
+      <option value="605">iPod</option>
+      <option value="684">ocarina, sweet potato</option>
+      <option value="839">suspension bridge</option>
+      <option value="895">warplane, military plane</option>
+      <option value="981">ballplayer, baseball player</option>
+    </select>
+  </div>
+  <button type="button" id="generate-button" data-action="click->stylegan#generate" class="primary-btn mb-0.5">
+    Generate
+  </button>
+</div>
+<p class="text-left mt-4">
+  This really shows how far image generation technology has come in the past few years—diffusion models such as
+  Midjourney and DALL-E have made it possible to generate images from text descriptions, and the results are often
+  indistinguishable from real images. Earlier GAN models, such as StyleGAN-XL shown here, look primitive in
+  comparison. But more
+  modern GANs can generate images that hold their own against diffusion models, and do so with a fraction of the
+  computational cost needed to train them.
+</p>
+<p class="text-left mt-4">
+  For example, <a href="https://arxiv.org/abs/2303.05511" class="text-blue-500 hover:underline">GigaGAN</a>, shown
+  with this image demonstration below, is a GAN model that can generate images
+  from text descriptions, and achieves results very similar to that of DALL-E 2 while allowing for an immense amount
+  of flexibility in the different parameters that can be used to generate images.
+</p>
+<div class="h-96 bg-gray-200 dark:bg-gray-800 rounded-lg mt-8">
+  <%= image_tag("gigagan_house.png", class: "h-full w-full object-contain py-4 rounded-lg") %>
+</div>
+<h2 class="text-2xl font-bold text-left mt-8" id="overview">
+  A Brief Overview of GANs
+</h2>
+<p class="text-left mt-4">
+  Generative Adversarial Networks, or GANs, are still a technology in its infancy—however as far as the fledgeling
+  fields of generative image models and language models go, it was one of the earliest to gain recognition. First
+  introduced by
+  <a href="https://arxiv.org/abs/1406.2661" class="text-blue-500 hover:underline">Ian Goodfellow and his colleagues in
+    2014</a> in a paper that has gone on to be cited over
+  <em>73,000 times</em>, the technology has since been used in a variety of applications, from image generation to
+  text-to-image synthesis.
+</p>
+<p class="text-left mt-4">
+  GANs are a type of neural network that consists of two networks: a generator and a discriminator. The generator
+  creates new data instances, while the discriminator evaluates them for authenticity. The two networks are trained
+  together in a zero-sum game, with the generator trying to fool the discriminator and the discriminator trying to
+  catch the generator in a lie. This adversarial training process results in the generator creating increasingly
+  realistic data instances—over time, the generator will improve its output to the point where the discriminator
+  cannot easily tell the difference between real and fake data.
+</p>
+<p class="text-left mt-4">
+  In a landscape where a glut of AI-generated content drowning out human-created image and prose threatens to make the
+  potential threat of
+  <a href="https://www.nature.com/articles/d41586-024-02420-7" class="text-blue-500 hover:underline">model
+    collapse</a>
+  a reality, the resistance of GAN-based models in their very nature to this phenomenon makes them potentially a very
+  powerful replacement to the current state of the art in AI-generated content.
+</p>
+
+<figure class="my-8 w-1/4 flex flex-col float-left">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Generative_adversarial_network.svg" alt="A diagram of a GAN" class="h-auto rounded-lg pr-8">
+  <figcaption class="mt-2 text-sm text-left text-gray-500 dark:text-gray-400">
+    Sourced from
+    <a href="https://en.wikipedia.org/wiki/Generative_adversarial_network" class="text-blue-500 hover:underline">Wikipedia</a>
+  </figcaption>
+</figure>
+<h2 class="text-2xl font-bold text-left mt-8" id="how-they-work">
+  Wait, But How Do They Work, For Real?
+</h2>
+<p class="text-left mt-4">
+  The concept of GAN models stem from game theory, and specifically the concept of a zero-sum game. In a zero-sum game,
+  two competing entities are playing a game where one entity's gain is the other entity's loss. In the case of GANs, the
+  two entities playing against each other are neural networks. One network, the generator, is trying to create data that
+  is indistinguishable from real data, while the other network, the discriminator, is trying to guess if the data is
+  real or generated.
+</p>
+<p class="text-left mt-4">
+  The generator, essentially, is trying to fool the discriminator! This creates a sort of
+  evolutionary arms race between the two models, where the generator constantly improves its output to fool the
+  discriminator, and the discriminator acts in kind to catch the generator in a lie. This reflects real world scenarios,
+  too— one commonly used example is of counterfeiters and law enforcement, but another in nature is that of evolution,
+  where predators and prey evolve in tandem to outwit each other.
+</p>
+<p class="text-left mt-4">
+  Shown below is the example of crabs and snails, who have progressively evolved to outwit each other in an evolutionary
+  arms
+  race, as is the case with many predator-prey relationships in nature.
+</p>
+<!--centered image-->
+<div class="h-64 bg-gray-200 dark:bg-gray-800 rounded-lg mt-8">
+  <%= image_tag("convergent.png", class: "h-full w-full object-contain py-4 rounded-lg") %>
+</div>
+<p class="text-left mt-4">
+  In a more technical sense, the GAN generator's task is to approach <%= Katex.render('\mu_{G} \approx \mu_{ref}') %>
+  —matching its output distribution as closely as possible to the real data distribution. The discriminator's goal is to
+  output a value as close to 1 as possible for real data, and as close to 0 as possible for generated data. The
+  generator's loss function is the discriminator's output for generated data, while the discriminator's loss function is
+  the sum of the discriminator's output for real data and the discriminator's output for generated data. This is a
+  simplification of the actual loss functions used in GANs, but it gives a general idea of how the two networks are
+  trained. For image generation applications, the generator is typically a deconvolutional neural network, while the
+  discriminator is a convolutional neural network.
+</p>
+
+<h2 class="text-2xl font-bold text-left mt-8" id="history">
+  A History of GANs
+</h2>
+<p class="text-left mt-4">
+  The first GAN model, introduced by Ian Goodfellow and his colleagues in 2014, was a landmark in the field of
+  generative models. As early as the same year it was introduced, researchers were already experimenting with the model
+  to assist in computer vision tasks, such as image generation and image-to-image translation. An early example of this
+  comes via Mirza and Osindero's 2014 paper,
+  <a href=https://arxiv.org/abs/1411.1784 class="text-blue-500 hover:underline">Conditional Generative Adversarial
+    Nets</a>, an evolution of the original GAN
+  model that directly mentions and demonstrates the use of GANs for tasks such as labelling and tagging images.
+  The concept of conditional GANs is greatly important in the field of image generation, as it allows for the generation
+  of images based on specific conditions, such as a text description or a specific class label—paving the way for modern
+  text-to-image tools such as DALL-E and Midjourney.
+</p>
+<p class="text-left mt-4">
+  The next major step in the evolution of GANs came in 2015, with Radford et al.'s paper, <a
+  href="https://arxiv.org/abs/1511.06434" class="text-blue-500 hover:underline">Unsupervised Representation Learning
+  with Deep Convolutional Generative Adversarial Networks</a>. This paper introduced the DCGAN model, a GAN model that
+  was designed to be highly effective in unsupervised learning, previously a major challenge in GAN models. The DCGAN
+  model proved far more stable to train than previous GAN models, and was able to generate natural images that looked
+  far more visually realistic than previous GAN models. The researchers also proposed DCGAN's use in fields such as
+  video frame prediction and auditory speech synthesis—both of which have been used in deepfake technology. I'll be
+  discussing deepfakes in more detail later on, in the section on the implications of GAN frameworks.
+</p>
+<p class="text-left mt-4">
+  An interesting sidenote in the history of GANs is the Wasserstein GAN model, introduced by Arjovsky et al. in their
+  2017 paper, <a href="https://arxiv.org/abs/1701.07875" class="text-blue-500 hover:underline">Wasserstein GAN</a>. The
+  Wasserstein GAN model introduced a novel divergence metric, the Wasserstein distance, that allowed for significantly
+  more stable training of GAN models. While not as widely used as other variations of GAN models, the Wasserstein GAN
+  shows the potential to further improve the stability of GAN training.
+<p class="text-left mt-4">
+  Another massive jump in GAN technology came in 2017, with the introduction of the Progressive GAN model by Karras et
+  al. in their paper, <a href="https://arxiv.org/abs/1710.10196" class="text-blue-500 hover:underline">Progressive
+  Growing of GANs for Improved Quality, Stability, and Variation</a>. Using novel methods to grow both the generator
+  and discriminator networks, the Progressive GAN model achieves both faster and significantly more stable training,
+  used to generate high-resolution images that were previously impossible to generate with GAN models. The Progressive
+  GAN model served as the basis for NVIDIA's StyleGAN series of models,
+  <a href="https://arxiv.org/abs/1812.04948" class="text-blue-500 hover:underline">the first of which was introduced in
+    2018</a>.
+</p>
+<figure class="my-2 w-1/2 flex flex-col float-right">
+  <img src="<%= image_path("stylegan-t.png") %>" alt="Images generated by StyleGAN-T in a variety of styles" class="h-auto rounded-lg pr-8">
+  <figcaption class="mt-2 text-sm text-left text-gray-500 dark:text-gray-400">
+    Sourced from
+    <a href="https://arxiv.org/abs/2301.09515" class="text-blue-500 hover:underline">the StyleGAN-T paper</a>
+  </figcaption>
+</figure>
+<p class="text-left mt-4">
+  The StyleGAN series of models continues to be one of the most popular GAN models in use today, with the latest model,
+  <a href="https://arxiv.org/abs/2301.09515" class="text-blue-500 hover:underline">
+    StyleGAN-T</a>, being introduced in 2023. StyleGAN was designed to be explainable, interpretable, and controllable,
+  and
+  to the end user this manifests in being able to control the style of the generated image, such as the age of a person
+  in a portrait or the breed of a dog in an image. This, along with its state of the art image generation capabilities,
+  has led to its significant popularity in the field of image generation models. StyleGAN-T, in particular, is
+  especially notable due to its incredibly fast speeds and high-quality image generation capabilities, allowing it to
+  compete with modern diffusion models such as Stable Diffusion and Midjourney in terms of image quality.
+</p>
+<p class="text-left mt-4">
+  Over the last decade, improvements in GANs have led to better training stability, better image
+  generation capability, and style-incorporated generation. While they are no longer the cutting edge of deep learning,
+  it is clear that GANs have a long future ahead of them, and will continue to evolve and improve with their unique
+  capabilities.
+</p>
+<h2 class="text-2xl font-bold text-left mt-8" id="implications">
+  The Implications of GAN Frameworks
+</h2>
+<p class="text-left mt-4">
+  The implications of GAN frameworks are vast and varied, and have the potential to impact a wide range of industries.
+  By far the most well-known application of GAN frameworks is in the creation of deepfakes, a method of creating
+  realistic-looking images and videos with faces and bodies replaced—leading to the effect of people saying or doing
+  things they never actually did. GAN networks were found
+  to be particularly effective in creating deepfakes, as when trained on a large enough dataset, they can almost
+  flawlessly substitute faces and bodies in images and videos. One of the most well-known early examples of this is the
+  Jordan Peele deepfake, where the actor and comedian was made to appear as former President Barack Obama:
+</p>
+<div class="h-96 bg-gray-200 dark:bg-gray-800 rounded-lg mt-8 flex justify-center">
+  <iframe class="h-full w-1/2 py-4 rounded-lg" src="https://www.youtube-nocookie.com/embed/cQ54GDm1eL0?si=zgLYPMafMfRzXIxZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+<p class="text-left mt-4">
+  Peele's deepfake was created with a proprietary tool called FakeApp, but modern software such as DeepFaceLab do in
+  fact
+  use GAN frameworks as one part of their complex architecture to create accurate deepfakes. Even the older technology
+  seen in Peele's video is still incredibly hard to distinguish from real video, especially at lower resolutions or when
+  not paying close attention. His words on being more careful with what we see and hear in the media are especially
+  poignant in the age of deepfakes, and as GAN technology's most well-known application, it is a powerful reminder of
+  the potential dangers of AI-generated content.
+</p>
+<p class="text-left mt-4">
+  The negative effects of deepfakes are well-documented, and include the potential for misinformation, which
+  <a href="https://journals.sagepub.com/doi/10.1177/2056305120903408" class="text-blue-500 hover:underline">studies
+    have shown</a> can confuse and mislead people to the point of reducing trust in the media. This can have
+  far-reaching consequences, especially in the political sphere, where deepfakes can be used to create fake news and
+  manipulate public opinion. The potential for deepfakes to be used in cyberbullying and harassment is also a major
+  concern, as they can be used to create fake images and videos of people in compromising situations.
+</p>
+<p class="text-left mt-4">
+  However, it is important not to discount the positive implications of deepfake technology. For example, the potential
+  for deepfakes in film and media has been
+  <a href="https://doi.org/10.1177/13548565211034044" class="text-blue-500 hover:underline">widely discussed</a>, with
+  the ability to transform actors into younger or older
+  versions of themselves, or to bring back actors who have passed away. This has the potential to revolutionize the film
+  industry, although of course it is important to consider the ethical implications of using deepfakes in this way.
+  Certainly,
+  <a href="https://www.telegraph.co.uk/business/2024/07/07/actors-get-ready-to-rebel-against-ai-with-strikes/" class="text-blue-500 hover:underline">many
+    actors and other figures have spoken out</a> about their likenesses being used in deepfakes—raising issues
+  about consent, or lack thereof, especially when considering posthumous figures.
+  Advertising and marketing are also areas where deepfakes have the potential to be used in a positive way, such as in
+  creating personalized advertising campaigns, such as for example a digital dressing room where customers can see
+  themselves in different outfits.
+</p>
+<figure class="my-2 w-1/4 flex flex-col float-left mr-4">
+  <img src="<%= image_path("neural painter.png") %>" alt="Paintings created by a GAN model, and the original photographs" class="h-auto rounded-lg pr-8">
+  <figcaption class="mt-2 text-sm text-left text-gray-500 dark:text-gray-400">
+    Sourced from
+    <a href="https://arxiv.org/abs/1904.08410" class="text-blue-500 hover:underline">Neural Painters: A learned
+      differentiable constraint for generating brushstroke paintings</a>
+  </figcaption>
+</figure>
+<p class="text-left mt-4">
+  GAN frameworks are not just useful for deepfakes, however—its uses in the broader realm of image generation are worth
+  exploring. For example, GANs have been used in the creation of art, such as in Nakano's fascinating paper
+  <a href="https://arxiv.org/abs/1904.08410" class="text-blue-500 hover:underline">Neural Painters: A learned
+    differentiable constraint for generating brushstroke paintings</a>, where the researcher used GAN frameworks to
+  paint images in a human-like manner using learned brushstrokes, or in the creation of music, such as in Yu et al.'s
+  paper <a href="https://arxiv.org/pdf/1908.05551" class="text-blue-500 hover:underline">Conditional LSTM-GAN for Melody
+  Generation from Lyrics</a>, where the researchers used GAN frameworks to explore the relationship between lyrics and
+  melody in music. While at the same time it is important to consider ethical implications in this area, as is the same
+  with other generative AI models that have been criticised in recent years, these applications are not only fascinating
+  but also have the potential to build entirely new ways of creating art.
+</p>
+<p class="text-left mt-4">
+  GAN frameworks also has the potential to revolutionize the field of medicine, with applications in medical imaging,
+  drug discovery, and personalized medicine. For example, GANs have been used in the creation of synthetic medical
+  images, such as in the paper by Nie et al.,
+  <a href="https://arxiv.org/abs/1612.05362" class="text-blue-500 hover:underline">Medical Image Synthesis with
+    Context-Aware Generative Adversarial Networks</a>, where the researchers used GAN frameworks to generate synthetic
+  medical images for training machine learning models. This has the potential to greatly improve the quality of medical
+  imaging, and to reduce the need for large datasets of real medical images.
+</p>
+<p class="text-left mt-4">
+  Overall, the implications of GAN frameworks are vast and varied, and have the potential to impact a wide range of
+  industries. While there are certainly ethical concerns to consider, it is clear to see that GAN frameworks, even just
+  related to image synthesis, have the potential to make complex workflows easier, and to create entirely new ways of
+  generating content.
+</p>
+<p class="mt-12 text-center"><small class="text-gray-500 dark:text-gray-400">
+  This web application was created by Zoe Picone<br />Student ID 300576572
+</small>
+</p>
