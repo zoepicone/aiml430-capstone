@@ -17,7 +17,12 @@ servers:
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).
 proxy:
   ssl: true
-  host: app.example.com
+  host: static.3.166.132.142.clients.your-server.de
+
+ssh:
+  user: root
+  keys:
+    - [ "~/.ssh/zoe_rsa" ]
 
 # Credentials for your image host.
 registry:
