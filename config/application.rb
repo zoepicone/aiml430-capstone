@@ -27,6 +27,5 @@ module Capstone
     config.action_view.image_loading = "lazy"
 
     config.assets.paths << File.join(Katex.gem_path, "vendor", "katex", "stylesheets")
-    config.assets.paths << File.join(Katex.gem_path, "vendor", "katex", "fonts")
   end
 end
