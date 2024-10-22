@@ -21,8 +21,7 @@ proxy:
 
 ssh:
   user: root
-  keys:
-    - [ "~/.ssh/zoe_rsa" ]
+  keys: [ "~/.ssh/zoe_rsa" ]
 
 # Credentials for your image host.
 registry:
