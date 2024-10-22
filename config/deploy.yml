@@ -16,8 +16,10 @@ servers:
 # Enable SSL auto certification via Let's Encrypt (and allow for multiple apps on one server).
 # Set ssl: false if using something like Cloudflare to terminate SSL (but keep host!).
 proxy:
-  ssl: true
-  host: static.3.166.132.142.clients.your-server.de
+  ssl: false
+  hosts:
+    - static.3.166.132.142.clients.your-server.de
+    - 142.132.166.3
 
 ssh:
   user: root
